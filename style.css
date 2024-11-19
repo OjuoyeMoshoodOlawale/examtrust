@@ -1,0 +1,88 @@
+:root {
+  --color-yellow: #ff9e00;
+  --color-blue: #03045e;
+}
+nav {
+  font-weight: bolder;
+}
+.text-primary {
+  color: var(--color-blue) !important;
+}
+.text-warning {
+  color: var(#ff9e00);
+}
+nav ul {
+  margin: 0 auto;
+  gap: 20px;
+}
+nav ul a {
+  gap: 50px;
+  color: var(--color-blue) !important;
+}
+.hero .right {
+  margin: auto;
+}
+.hero img {
+  width: 100vw;
+  /* 1height: 100vh;*/
+}
+.why-sd,
+.about-list,
+.contact-child {
+  background-color: var(--color-blue);
+}
+.bg-primary {
+  background-color: var(--color-blue) !important;
+}
+.features-icon {
+  width: 25%;
+  height: 40%;
+  top: -2rem;
+  left: 40%;
+}
+.active {
+  color: var(--color-yellow) !important;
+}
+
+/* Container for form input and label */
+.form-group {
+  position: relative;
+  width: 100%;
+}
+
+/* Style for input field */
+.input-field {
+  width: 100%;
+  padding: 12px 12px 12px 12px;
+  border: 1px solid var(--color-blue);
+  border-radius: 0px;
+  width: 100%;
+  position: relative;
+}
+
+/* Style for the label */
+.input-label {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* When input is focused or filled */
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label {
+  top: 0;
+  font-size: 12px;
+  color: var(--color-blue);
+  background-color: white;
+  padding: 0 5px;
+}
+form .btn {
+  border-radius: 0 !important;
+  width: 100%;
+}
