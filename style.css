@@ -86,3 +86,18 @@ form .btn {
   border-radius: 0 !important;
   width: 100%;
 }
+
+#video,
+#canvas {
+  width: 100%; /* Full width of the viewport */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Removes unnecessary inline spacing */
+}
+
+@media (max-width: 768px) {
+  /* Small screens */
+  #video,
+  #canvas {
+    width: 100%; /* Ensure it fits within the container */
+  }
+}
