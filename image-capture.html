@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Face Detection</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .video-container {
+        position: relative;
+        display: inline-block;
+      }
+      video,
+      canvas {
+        border: 2px solid #007bff;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container text-center mt-5">
+      <h1>Face Detection</h1>
+      <p class="text-muted">
+        Make sure your face is clearly visible within the frame.
+      </p>
+
+      <div class="video-container">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay" class="position-absolute top-0 start-0"></canvas>
+      </div>
+
+      <button id="startBtn" class="btn btn-primary mt-3">
+        Start Detection
+      </button>
+    </div>
+
+    <script>
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("overlay");
+      const startBtn = document.getElementById("startBtn");
+      const ctx = canvas.getContext("2d");
+      let detectionInterval; // Variable to control the detection loop
+      alert(1);
+      async function loadModels() {
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(
+            "https://cdn.jsdelivr.net/npm/face-api.js/models"
+          ),
+          faceapi.nets.faceLandmark68Net.loadFromUri(
+            "https://cdn.jsdelivr.net/npm/face-api.js/models"
+          ),
+        ]);
+        console.log("Models loaded successfully");
+      }
+      alert(1);
+      async function startVideo() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {},
+          });
+          video.srcObject = stream;
+        } catch (err) {
+          alert(
+            "Error accessing the camera. Please ensure your camera is connected and permissions are granted."
+          );
+          console.error(err);
+        }
+      }
+      alert(1);
+      async function detectFaces() {
+        const displaySize = {
+          width: video.offsetWidth,
+          height: video.offsetHeight,
+        };
+        canvas.width = displaySize.width;
+        canvas.height = displaySize.height;
+
+        detectionInterval = setInterval(async () => {
+          const detections = await faceapi.detectAllFaces(
+            video,
+            new faceapi.TinyFaceDetectorOptions()
+          );
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          if (detections.length > 0) {
+            const faceBox = detections[0].detection.box;
+            const { x, y, width, height } = faceBox;
+
+            // Draw rectangle around the face
+            ctx.strokeStyle = "green";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x, y, width, height);
+
+            alert("Yes, face detected!");
+            clearInterval(detectionInterval); // Stop the detection loop
+          }
+        }, 100);
+      }
+
+      startBtn.addEventListener("click", async () => {
+        alert(1);
+        await loadModels();
+        await startVideo();
+        video.addEventListener("play", detectFaces);
+      });
+    </script>
+  </body>
+</html>
