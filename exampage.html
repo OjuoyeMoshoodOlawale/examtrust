@@ -55,10 +55,18 @@
         <!--end $question ..-->
         <div class="d-flex justify-content-center">
           <button class="btn btn-success" id="nav_left">
-            <i class="fas fa-chevron-left"></i>Previous
+            <i
+              class="fas fa-chevron-left"
+              onclick="nav_questions((active_state_questions -1))"
+            ></i
+            >Previous
           </button>
           &nbsp;
-          <button class="btn btn-success" id="nav_right">
+          <button
+            class="btn btn-success"
+            id="nav_right"
+            onclick="nav_questions((active_state_questions +1))"
+          >
             Next <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -100,7 +108,7 @@
 
     <script>
       // Function to display a question and its options
-      var active_state_questions = "";
+      window.active_state_questions = "";
       function nav_questions(index) {
         active_state_questions = index;
         if (index < 0 || index >= allQuestions.length) {
