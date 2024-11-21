@@ -90,8 +90,9 @@ form .btn {
 #video,
 #canvas {
   width: 100%; /* Full width of the viewport */
-  height: auto; /* Maintain aspect ratio */
+  height: 100%; /* Maintain aspect ratio */
   display: block; /* Removes unnecessary inline spacing */
+  padding: 2;
 }
 
 @media (max-width: 768px) {
@@ -100,4 +101,16 @@ form .btn {
   #canvas {
     width: 100%; /* Ensure it fits within the container */
   }
+}
+
+.form-check-label {
+  font-size: 1rem; /* Increase font size */
+  font-weight: bold; /* Make text bold */
+}
+.form-check-input:checked {
+  background-color: blue; /* Change color when selected */
+  border-color: blue;
+}
+.form-check-input {
+  border-color: var(--color-yellow);
 }

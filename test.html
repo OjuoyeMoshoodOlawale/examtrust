@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Face Detection and Capture</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+  </head>
+
+  <body class="bg-light">
+    <div class="container py-5">
+      <h1 class="text-center mb-4">Face Detection and Capture</h1>
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <!-- Video and Canvas Container -->
+          <div class="mb-3 text-center">
+            <video
+              id="video"
+              autoplay
+              class="border rounded shadow-sm"
+              width="100%"
+            ></video>
+            <canvas id="canvas" class="d-none"></canvas>
+          </div>
+          <!-- Capture Button -->
+          <div class="text-center">
+            <button id="captureButton" class="btn btn-primary btn-lg">
+              Capture Face
+            </button>
+          </div>
+          <!-- Capture Count -->
+          <p id="captureCount" class="text-center mt-3">Captured: 0/3</p>
+          <!-- Captured Faces -->
+          <div
+            id="capturedFacesContainer"
+            class="mt-4 row justify-content-center"
+          >
+            <!-- Captured images will be shown here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const captureButton = document.getElementById("captureButton");
+      const captureCount = document.getElementById("captureCount");
+      const capturedFacesContainer = document.getElementById(
+        "capturedFacesContainer"
+      );
+      let captureInstances = 0;
+      let capturedFaces = [];
+      let model;
+
+      // Start video
+      async function setupCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        video.srcObject = stream;
+        await video.play();
+        video.onloadedmetadata = () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        };
+      }
+
+      // Load BlazeFace model and detect faces
+      async function detectFaces() {
+        if (!model) {
+          model = await blazeface.load();
+        }
+        const predictions = await model.estimateFaces(video, false);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        predictions.forEach((pred) => {
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(
+            pred.topLeft[0],
+            pred.topLeft[1],
+            pred.bottomRight[0] - pred.topLeft[0],
+            pred.bottomRight[1] - pred.topLeft[1]
+          );
+        });
+
+        requestAnimationFrame(detectFaces);
+      }
+
+      // Capture face and show at the bottom
+      function captureFace(face) {
+        if (captureInstances < 3) {
+          const faceWidth = face.bottomRight[0] - face.topLeft[0];
+          const faceHeight = face.bottomRight[1] - face.topLeft[1];
+
+          const faceImageData = ctx.getImageData(
+            face.topLeft[0],
+            face.topLeft[1],
+            faceWidth,
+            faceHeight
+          );
+
+          const faceCanvas = document.createElement("canvas");
+          const faceCtx = faceCanvas.getContext("2d");
+          faceCanvas.width = faceWidth;
+          faceCanvas.height = faceHeight;
+          faceCtx.putImageData(faceImageData, 0, 0);
+
+          const faceImage = new Image();
+          faceImage.src = faceCanvas.toDataURL();
+          faceImage.classList.add("col-md-4", "mb-3");
+
+          capturedFacesContainer.appendChild(faceImage);
+
+          capturedFaces.push(faceCanvas.toDataURL());
+
+          captureInstances++;
+          captureCount.textContent = `Captured: ${captureInstances}/3`;
+
+          if (captureInstances === 3) {
+            captureButton.disabled = true;
+            alert("Capture complete! Faces saved for future verification.");
+          }
+        }
+      }
+
+      captureButton.addEventListener("click", async () => {
+        if (captureInstances < 3) {
+          captureButton.disabled = true;
+          await detectFaces();
+          captureButton.disabled = false;
+        }
+      });
+
+      setupCamera().then(() => {
+        detectFaces();
+      });
+    </script>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  </body>
+</html>

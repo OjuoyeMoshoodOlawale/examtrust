@@ -11,7 +11,8 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
   </head>
   <body>
     <nav class="navbar d-flex navbar-expand-lg justify-content-around">
@@ -36,12 +37,14 @@
               <a class="nav-link" aria-current="page" href="index.html">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="#"
+              <a class="nav-link" aria-current="page" href="index.html#why"
                 >Why SD Proctor
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="#">About </a>
+              <a class="nav-link" aria-current="page" href="index.html#about"
+                >About
+              </a>
             </li>
             <li class="nav-item">
               <a
@@ -111,7 +114,7 @@
             </div>
             <div class="form-group">
               <button
-                id="capture_modal"
+                id="captureModalButton"
                 class="btn btn-primary"
                 data-bs-toggle="modal"
                 data-bs-target="#largeModal"
@@ -150,11 +153,12 @@
         tabindex="-1"
         aria-labelledby="largeModalLabel"
         aria-hidden="true"
+        data-bs-backdrop="static"
       >
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="largeModalLabel">Large Modal</h5>
+              <h5 class="modal-title" id="largeModalLabel">Image Capturing</h5>
               <button
                 type="button"
                 class="btn-close"
@@ -178,10 +182,13 @@
                     class="img-fluid vw-100"
                     style="display: none"
                   ></canvas>
+                  <div id="instructions fw-bold m-auto">
+                    Follow the instructions to capture your face.
+                  </div>
                 </div>
               </div>
               <!-- Capture Button -->
-              <div class="row my-3">
+              <div class="row my-5">
                 <div class="col-12 text-center">
                   <button id="capture" class="btn btn-primary">
                     Capture 3
@@ -244,27 +251,21 @@
       const video = document.getElementById("video");
       const canvas = document.getElementById("canvas");
       const captureButton = document.getElementById("capture");
-      const captureModalButton = document.getElementById("capture_modal");
+      const captureModalButton = document.getElementById("captureModalButton");
       const image1 = document.getElementById("image1");
       const image2 = document.getElementById("image2");
       const image3 = document.getElementById("image3");
-
-      captureButton.addEventListener("click", () => {
-        // Access the user's webcam
-        navigator.mediaDevices
-          .getUserMedia({ video: true })
-          .then((stream) => {
-            video.srcObject = stream;
-          })
-          .catch((error) => {
-            console.error("Error accessing webcam: ", error);
-            alert("Unable to access webcam.");
-          });
-      });
+      const instructions = document.getElementById("instructions");
+      const ctx = canvas.getContext("2d");
+      const steps = [
+        "Look straight at the camera with a neutral expression.",
+        "Turn your head to the left.",
+        "Turn your head to the right.",
+      ];
 
       let captureCount = 0;
 
-      // Capture image and display in respective frame
+      // Function to capture and save images
       captureModalButton.addEventListener("click", () => {
         // Access the user's webcam
         navigator.mediaDevices
@@ -276,7 +277,13 @@
             console.error("Error accessing webcam: ", error);
             alert("Unable to access webcam.");
           });
+        let speech = new SpeechSynthesisUtterance(
+          "Look straight at the camera with a neutral expression."
+        );
+        speechSynthesis.speak(speech);
       });
+
+      // Function to capture and save images
       captureButton.addEventListener("click", () => {
         if (captureCount < 3) {
           const context = canvas.getContext("2d");
@@ -285,21 +292,34 @@
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
           const imageData = canvas.toDataURL("image/png");
+
+          // Display the captured image in the respective slot
+          if (captureCount === 0) {
+            image1.src = imageData;
+          } else if (captureCount === 1) {
+            image2.src = imageData;
+          } else if (captureCount === 2) {
+            image3.src = imageData;
+          }
+
           captureCount++;
 
-          if (captureCount === 1) {
-            image1.src = imageData;
-            captureButton.innerHTML = "Cature 2";
-          } else if (captureCount === 2) {
-            image2.src = imageData;
-            captureButton.innerHTML = "Cature 1";
-          } else if (captureCount === 3) {
-            image3.src = imageData;
-            captureButton.innerHTML = "Cature Complete";
-            captureButton.disabled = true; // Disable after 3 captures
+          // Update the instruction or disable the button
+          if (captureCount < steps.length) {
+            instructions.textContent = steps[captureCount];
+            let speech = new SpeechSynthesisUtterance(steps[captureCount]);
+            speechSynthesis.speak(speech);
+          } else {
+            instructions.textContent = "All captures complete!";
+            let speech = new SpeechSynthesisUtterance("All captures complete!");
+            speechSynthesis.speak(speech);
+            captureButton.disabled = true;
           }
         }
       });
+
+      // Initialize with the first instruction
+      instructions.textContent = steps[captureCount];
     </script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
   </body>
