@@ -54,11 +54,11 @@
         </div>
         <!--end $question ..-->
         <div class="d-flex justify-content-center">
-          <button class="btn btn-success">
+          <button class="btn btn-success" id="nav_left">
             <i class="fas fa-chevron-left"></i>Previous
           </button>
           &nbsp;
-          <button class="btn btn-success">
+          <button class="btn btn-success" id="nav_right">
             Next <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -100,7 +100,9 @@
 
     <script>
       // Function to display a question and its options
+      var active_state_questions = "";
       function nav_questions(index) {
+        active_state_questions = index;
         if (index < 0 || index >= allQuestions.length) {
           alert("Invalid question index!");
           return;
@@ -114,21 +116,31 @@
         const options = allQuestions[index].options;
         for (const [key, value] of Object.entries(options)) {
           const optionHtml = `
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="questionOptions"
-          id="option${key}"
-          value="${key}"
-        />
-        <label class="form-check-label" for="option${key}">
-          ${key}. ${value}
-        </label>
-      </div>
-    `;
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="questionOptions"
+            id="q${index}o${key}"
+            value="${key}"
+          />
+          <label class="form-check-label" for="option${key}">
+            ${key}. ${value}
+          </label>
+        </div>
+      `;
           $("#options").append(optionHtml);
         }
+        //////////////////////////////
+        if (index == 0) {
+          $("#nav_left").hide();
+        } else if (index == allQuestions.length - 1) {
+          $("#nav_right").hide();
+        } else {
+          $("#nav_left").show();
+          $("#nav_right").show();
+        }
+        ////////////////////////////
       }
 
       $(document).ready(function () {
@@ -205,10 +217,10 @@
         // Generate navigation buttons for each question
         for (let i = 0; i < allQuestions.length; i++) {
           const button = $(`
-      <button class="btn btn-warning m-1" onClick="nav_questions(${i})">
-        ${i + 1}
-      </button>
-    `);
+        <button class="btn btn-warning m-1" onClick="nav_questions(${i})">
+          ${i + 1}
+        </button>
+      `);
           $("#no_nav").append(button);
         }
       });
